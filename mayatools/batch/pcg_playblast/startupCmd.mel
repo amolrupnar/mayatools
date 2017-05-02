@@ -1,0 +1,4 @@
+global proc startupCmd()
+{
+    python("import playblast_bat\nplayblast_bat.getSoundFilePath()");
+}
