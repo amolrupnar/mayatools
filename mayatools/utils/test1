@@ -1,19 +1,23 @@
-'''
- def timer(self):
-     QtCore.QTimer.singleShot(100,self.export)
+import time
+from multiprocessing import Process as psp
 
 
+class Foo(object):
+    def __init__(self):
+        self.a = 'amol'
 
- def export(self):
-     self.log.append("started")
+    def printTime(self):
+        for each in range(10):
+            self.a = each
+            time.sleep(1)
 
-     self.proc=subprocess.Popen("avconv -i %s -b %s -s %s %s"
-        %(self.inputFile,self.bitRatesList[self.bitRate.currentIndex()],
-        self.sizeList[self.sizeSel.currentIndex()],self.outputFile),shell=True,stdout=subprocess.PIPE)
-         while True:
-             output=self.proc.stdout.readline()
-             if not output:
-                 break
-             QtGui.qApp.processEvents()
-             self.log.append(output.strip())
-'''
+    def another_function(self):
+        print self.a
+
+
+if __name__ == '__main__':
+    f1 = Foo()
+    p1 = psp(target=f1.printTime())
+    p1.start()
+    p2 = psp(target=f1.another_function())
+    p2.start()

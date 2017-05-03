@@ -1,9 +1,9 @@
 import sys
 import os
-from PySide import QtGui
+from PySide import QtGui, QtCore
 from ConfigParser import SafeConfigParser
 
-from mayatools.ui import playblastUI
+from mayatools.batch.pcg_playblast.ui import playblastUI
 from mayatools.batch.pcg_playblast import playblast_bat
 from mayatools.batch.pcg_playblast import mayaSceneParser
 
@@ -12,8 +12,7 @@ reload(mayaSceneParser)
 reload(playblast_bat)
 # files.
 mayaFilePath = r"D:\temp\BDG105_004_layNew.ma"
-# configFilePath = os.path.dirname(__file__) + '/setting.config'
-configFilePath = r"C:\Users\amol\PycharmProjects\mayatools\batch\pcg_playblast\setting.config"
+configFilePath = os.path.dirname(os.path.dirname(__file__)) + '/setting.config'
 # styles.
 styles_dir = os.path.join(os.path.dirname(__file__), 'styles')
 qt_dark_blue = os.path.join(styles_dir, 'qt_dark_blue.qss')
@@ -21,6 +20,27 @@ qt_dark_orange = os.path.join(styles_dir, 'qt_dark_orange.qss')
 
 with open(qt_dark_blue, 'r') as fid:
     QTDark = fid.read()
+
+
+# Inherit from QThread
+class QSignalEmmiter(QtCore.QThread):
+    # This is the signal that will be emitted during the processing.
+    # By including int as an argument, it lets the signal know to expect
+    # an integer argument when emitting.
+    updateProgress = QtCore.Signal(int)
+
+    # You can do any extra things in this init you need, but for this example
+    # nothing else needs to be done expect call the super's init
+    def __init__(self):
+        QtCore.QThread.__init__(self)
+
+    # A QThread is run by calling it's start() function, which calls this run()
+    # function in it's own "thread".
+    def run(self):
+        # Notice this is the same thing you were doing in your progress() function
+        for i in range(1, 101):
+            # Emit the signal so it can be received on the UI side.
+            self.updateProgress.emit(i)
 
 
 class PlayblastUIConn(QtGui.QMainWindow, playblastUI.Ui_MainWindow):
@@ -76,8 +96,8 @@ class PlayblastUIConn(QtGui.QMainWindow, playblastUI.Ui_MainWindow):
         parser.read(self.configFilePath)
         resolution = parser.get('resolution', selected_resolution)
         res = resolution.split(',')
-        playblast_bat.batPlayblast(selected_cam, self.mayaFilePath, start_frame, end_frame, xRes=res[0], yRes=res[1])
-        self.playblast_PB.setVisible(False)
+        playblast_bat.batPlayblast(selected_cam, self.mayaFilePath, start_frame, end_frame, xRes=res[0], yRes=res[1],progress=self.playblast_PB)
+        # self.playblast_PB.setVisible(False)
 
     def resOnOff(self):
         self.custResX_SB.setEnabled(self.custom_res_CB.checkState())

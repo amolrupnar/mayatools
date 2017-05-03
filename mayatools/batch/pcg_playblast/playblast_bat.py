@@ -5,7 +5,7 @@ from subprocess import Popen, PIPE, STDOUT
 
 
 def batPlayblast(cam, mayaFilePath, startFrame, endFrame, xRes=1280, yRes=720, imageName=None,
-                 renderDirPath=None, mayaVersion='Maya2015'):
+                 renderDirPath=None, mayaVersion='Maya2015', progress=None):
     """
     create pcg_playblast using hardware render.
     :param cam: string
@@ -17,6 +17,7 @@ def batPlayblast(cam, mayaFilePath, startFrame, endFrame, xRes=1280, yRes=720, i
     :param imageName: string
     :param renderDirPath: string (path)
     :param mayaVersion: string
+    :param progress: string (progress bar name)
     :return: pcg_playblast
     """
     renderExe = "C:/Program Files/Autodesk/%s/bin/Render.exe" % mayaVersion
@@ -48,8 +49,11 @@ def batPlayblast(cam, mayaFilePath, startFrame, endFrame, xRes=1280, yRes=720, i
         line = process.stdout.readline()
         if line.find('Rendering frame') != -1:
             frame = line.split(' ')[2]
-            print frame, i, "Percent : ", percent_increment * i
             percent = percent_increment * i
+            if progress:
+                print percent
+                print frame
+                progress.setValue(percent)
             i += 1
     tempdir = tempfile.gettempdir()
     soundFileTextPath = tempdir + '/raw_soundFilePathInText.txt'
