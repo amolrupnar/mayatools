@@ -1,76 +1,19 @@
 '''
-Create Fk On Chain.
+ def timer(self):
+     QtCore.QTimer.singleShot(100,self.export)
+
+
+
+ def export(self):
+     self.log.append("started")
+
+     self.proc=subprocess.Popen("avconv -i %s -b %s -s %s %s"
+        %(self.inputFile,self.bitRatesList[self.bitRate.currentIndex()],
+        self.sizeList[self.sizeSel.currentIndex()],self.outputFile),shell=True,stdout=subprocess.PIPE)
+         while True:
+             output=self.proc.stdout.readline()
+             if not output:
+                 break
+             QtGui.qApp.processEvents()
+             self.log.append(output.strip())
 '''
-import maya.cmds as cmds
-import sys
-
-# sys.path.append(r'C:\Users\amol\PycharmProjects')
-
-from mayatools import utils
-
-reload(utils)
-reload(utils.contoller)
-# utils.contoller.Control
-# get all children joints of root.
-rootJoint = 'joint1'
-branches = []
-# get root children joints.
-rootChildrens = cmds.listRelatives(rootJoint, c=True, typ='joint')
-[branches.append(each) for each in rootChildrens]
-# all other children joints.
-allJoints = cmds.listRelatives(rootJoint, c=True, ad=True, typ='joint')
-# add multiple childrens in branches.
-for each in allJoints:
-    childs = cmds.listRelatives(each, c=True, typ='joint')
-    if childs and len(childs) > 1:
-        for eachBranch in childs:
-            branches.append(eachBranch)
-    else:
-        pass
-
-# add fk chain. as a binary tree.
-# create controller on root joint.
-RootCnt = utils.contoller.Control(name=rootJoint, parentSnap=True, target=rootJoint)
-RootCnt.circleCnt()
-# create fk chain in all branches.
-for x in range(len(branches)):
-    # sel = cmds.ls(sl=True)
-    jointChain = []
-    testJoint = branches[x]
-    endJoint = ''
-    jointChain.append(testJoint)
-    while not endJoint:
-        childs = cmds.listRelatives(testJoint, c=True, typ='joint')
-        if childs:
-            if len(childs) == 1:
-                jointChain.append(childs[0])
-                testJoint = childs[0]
-            else:
-                endJoint = testJoint
-                break
-        else:
-            # jointChain.pop(len(jointChain)-1)
-            break
-    # snap on hirarchy.
-    parentController = []
-    for i in range(len(jointChain)):
-        getEndJoint = cmds.listRelatives(jointChain[i], c=True, typ='joint')
-        if getEndJoint:
-            cnt = utils.contoller.Control(name=jointChain[i], parentSnap=True, target=jointChain[i])
-            cnt.circleCnt()
-        else:
-            cnt = utils.contoller.Control(name=jointChain[i], parentSnap=True, target=jointChain[i])
-            cnt.circleCnt()
-        parentController.append(cnt.C)
-        if i != 0:
-            print cnt.O, parentController[i - 1]
-            cmds.parent(cnt.O, parentController[i - 1])
-        else:
-            pass
-        cmds.refresh()  # Parent all FK Offset group to upper contoller.
-for z in range(len(branches)):
-    parentJoint = cmds.listRelatives(branches[z], p=True, typ='joint')
-    cmds.parent(branches[z] + '_ctl_grp', parentJoint[0] + '_ctl')
-    cmds.refresh()
-cmds.select(cl=True)
-

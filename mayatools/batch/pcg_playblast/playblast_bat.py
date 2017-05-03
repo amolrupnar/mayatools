@@ -1,7 +1,7 @@
 import pymel.core as pm
 import os
 import tempfile
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 
 
 def batPlayblast(cam, mayaFilePath, startFrame, endFrame, xRes=1280, yRes=720, imageName=None,
@@ -39,10 +39,18 @@ def batPlayblast(cam, mayaFilePath, startFrame, endFrame, xRes=1280, yRes=720, i
     os.environ['MAYA_SCRIPT_PATH'] = os.path.dirname(__file__)
     os.environ['PYTHONPATH'] = os.path.dirname(__file__)
     os.environ['PROD_SERVER'] = 'P:/badgers_and_foxes'
-    process = Popen(render_cmd, stdout=PIPE)
-    stdout, stderr = process.communicate()
-    print (stdout)
-    print (stderr)
+    total_frames = (endFrame - startFrame)
+    percent_increment = 100 / total_frames
+    process = Popen(render_cmd, shell=True, stderr=STDOUT, stdout=PIPE)
+
+    i = 0
+    while process.poll() is None:
+        line = process.stdout.readline()
+        if line.find('Rendering frame') != -1:
+            frame = line.split(' ')[2]
+            print frame, i, "Percent : ", percent_increment * i
+            percent = percent_increment * i
+            i += 1
     tempdir = tempfile.gettempdir()
     soundFileTextPath = tempdir + '/raw_soundFilePathInText.txt'
     if os.path.isfile(soundFileTextPath):

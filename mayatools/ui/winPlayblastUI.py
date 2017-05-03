@@ -9,9 +9,9 @@ from mayatools.batch.pcg_playblast import mayaSceneParser
 
 reload(playblastUI)
 reload(mayaSceneParser)
-
+reload(playblast_bat)
 # files.
-mayaFilePath = r"D:\temp\BDG105_004_lay.ma"
+mayaFilePath = r"D:\temp\BDG105_004_layNew.ma"
 # configFilePath = os.path.dirname(__file__) + '/setting.config'
 configFilePath = r"C:\Users\amol\PycharmProjects\mayatools\batch\pcg_playblast\setting.config"
 # styles.
@@ -29,7 +29,7 @@ class PlayblastUIConn(QtGui.QMainWindow, playblastUI.Ui_MainWindow):
         self.mayaFilePath = maya_file_path
         self.configFilePath = config_file_path
         self.setupUi(self)
-        self.setStyleSheet(QTDark)
+        # self.setStyleSheet(QTDark)
         self.playblast_PB.setVisible(False)
         self.fill_ui()
         self.connections()
@@ -72,10 +72,6 @@ class PlayblastUIConn(QtGui.QMainWindow, playblastUI.Ui_MainWindow):
         # query start frame and end frame.
         start_frame = self.startFrame_DSB.value()
         end_frame = self.endFrame_DSB.value()
-        print start_frame
-        print end_frame
-        print selected_cam
-        print selected_resolution
         parser = SafeConfigParser()
         parser.read(self.configFilePath)
         resolution = parser.get('resolution', selected_resolution)

@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$USER_HOME$/PycharmProjects/mayatools/.idea/maya.iml" filepath="$USER_HOME$/PycharmProjects/mayatools/.idea/maya.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../.idea/maya.iml" filepath="$PROJECT_DIR$/../.idea/maya.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/mayatools.iml" filepath="$PROJECT_DIR$/.idea/mayatools.iml" />
     </modules>
   </component>
 </project>
