@@ -1,49 +1,46 @@
-from maya import cmds as cmds
+import sys
+from PySide.QtCore import Slot
+from PySide.QtGui import *
+
+# ... insert the rest of the imports here
+# Imports must precede all others ...
+
+# Create a Qt app and a window
+app = QApplication(sys.argv)
+
+win = QWidget()
+win.setWindowTitle('Test Window')
+vBox = QVBoxLayout(win)
+# Create a button in the window
+btn = QPushButton('amol')
+vBox.addWidget(btn)
+pBar = QProgressBar(vBox)
+vBox.addWidget(pBar)
 
 
-def fkchain(sel='joint1'):
-    newChain = []
-    multiChild = []
-    parent = sel
-    newChain.append(parent)
-    while not multiChild:
-        chain = cmds.listRelatives(parent, type='joint')
-        if chain:
-            if len(chain) == 1:
-                newChain.append(chain[0])
-                parent = chain[0]
-            else:
-                multiChild = cmds.listRelatives(parent, c=True, typ='joint')
-        else:
-            break
-    addFk(newChain)
-    for each in multiChild:
-        fkchain(sel=each)
-        # return newChain, multiChild
+@Slot()
+def on_click():
+    ''' Tell when the button is clicked. '''
+    print('clicked')
 
 
-def addFk(chain):
-    controller = []
-    for i in range(len(chain)):
-        if i != len(chain) - 1:
-            cmds.select(cl=True)
-            offGrp = cmds.joint(n='FKOffset' + chain[i])
-            grp = cmds.group(n='FKExtra' + chain[i], em=True)
-            ctrl = cmds.circle(ch=False, n='FK' + chain[i], nr=[1, 0, 0])
-            cmds.select(cl=True)
-            fkxGrp = cmds.joint(n='FKX' + chain[i])
-            cmds.parent(ctrl[0], grp)
-            cmds.parent(fkxGrp, ctrl[0])
-            cmds.parent(grp, offGrp)
-            cmds.delete(cmds.parentConstraint(chain[i], offGrp))
-            cmds.makeIdentity(offGrp, a=True, t=1, r=1, s=1, n=0, pn=1)
-            cmds.parentConstraint(fkxGrp, chain[i])
-            controller.append(fkxGrp)
-            if i != 0:
-                cmds.parent(offGrp, controller[i - 1])
-        else:
-            cmds.select(cl=True)
-            fkxGrp = cmds.joint(n='FKX' + chain[i])
-            cmds.delete(cmds.parentConstraint(chain[i], fkxGrp))
-            cmds.parent(fkxGrp, controller[i - 1])
-            cmds.parentConstraint(fkxGrp, chain[i])
+@Slot()
+def on_press():
+    ''' Tell when the button is pressed. '''
+    print('pressed')
+
+
+@Slot()
+def on_release():
+    ''' Tell when the button is released. '''
+    print('released')
+
+
+# Connect the signals to the slots
+btn.clicked.connect(on_click)
+btn.pressed.connect(on_press)
+btn.released.connect(on_release)
+
+# Show the window and run the app
+win.show()
+app.exec_()

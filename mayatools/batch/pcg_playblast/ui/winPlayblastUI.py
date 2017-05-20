@@ -1,6 +1,6 @@
 import sys
 import os
-from PySide import QtGui, QtCore
+from PySide import QtGui
 from ConfigParser import SafeConfigParser
 
 from mayatools.batch.pcg_playblast.ui import playblastUI
